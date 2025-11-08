@@ -4,6 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["firebase-tools"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -15,16 +16,20 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
+localPort = 9005
+externalPort = 3003
+
+[[ports]]
 localPort = 33959
 externalPort = 3001
 
 [[ports]]
-localPort = 35441
-externalPort = 3000
+localPort = 34181
+externalPort = 3002
 
 [[ports]]
-localPort = 38265
-externalPort = 3002
+localPort = 35441
+externalPort = 3000
 
 [env]
 PORT = "5000"
