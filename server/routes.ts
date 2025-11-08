@@ -6,15 +6,18 @@ import { GoogleGenAI } from "@google/genai";
 import { chatRequestSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
+  // Only initialize clients if API keys are available
+  const openai = process.env.OPENAI_API_KEY 
+    ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+    : null;
 
-  const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-  });
+  const anthropic = process.env.ANTHROPIC_API_KEY
+    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    : null;
 
-  const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+  const genai = process.env.GEMINI_API_KEY
+    ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+    : null;
 
   app.post("/api/chat", async (req, res) => {
     try {
@@ -27,6 +30,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader("Connection", "keep-alive");
 
       if (model === "gpt-4") {
+        if (!openai) {
+          throw new Error("OpenAI API key is not configured");
+        }
         const stream = await openai.chat.completions.create({
           model: "gpt-4o",
           messages: messages.map((msg) => ({
@@ -43,6 +49,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       } else if (model === "claude-3.5-sonnet") {
+        if (!anthropic) {
+          throw new Error("Anthropic API key is not configured");
+        }
         const stream = await anthropic.messages.stream({
           model: "claude-3-5-sonnet-20241022",
           max_tokens: 4096,
@@ -62,6 +71,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
       } else if (model === "gemini-pro") {
+        if (!genai) {
+          throw new Error("Gemini API key is not configured");
+        }
         const chat = genai.chats.create({
           model: "gemini-2.0-flash-exp",
           history: messages.slice(0, -1).map((msg) => ({
