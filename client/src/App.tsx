@@ -1,24 +1,30 @@
-import { useState } from "react";
 import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import NotFound from "@/pages/not-found";
 
-function Router({ isAuthenticated, onLogin, onSignup }: { isAuthenticated: boolean; onLogin: () => void; onSignup: () => void }) {
-  if (!isAuthenticated) {
+function Router() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <Switch>
-        <Route path="/login">
-          <Login onLogin={onLogin} />
-        </Route>
-        <Route path="/signup">
-          <Signup onSignup={onSignup} />
-        </Route>
+        <Route path="/login" component={Login} />
+        <Route path="/signup" component={Signup} />
         <Route path="/">
           <Redirect to="/login" />
         </Route>
@@ -44,22 +50,14 @@ function Router({ isAuthenticated, onLogin, onSignup }: { isAuthenticated: boole
 }
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleSignup = () => {
-    setIsAuthenticated(true);
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router isAuthenticated={isAuthenticated} onLogin={handleLogin} onSignup={handleSignup} />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

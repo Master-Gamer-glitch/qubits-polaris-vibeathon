@@ -3,25 +3,54 @@ import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import logoUrl from '@assets/xconnect-logo.png';
 import googleIconUrl from '@assets/google-icon.png';
 
-interface SignupProps {
-  onSignup: () => void;
-}
-
-export default function Signup({ onSignup }: SignupProps) {
+export default function Signup() {
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { signUp, signInWithGoogle } = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSignup();
+    setIsLoading(true);
+
+    try {
+      await signUp(email, password);
+      toast({
+        title: "Account Created",
+        description: "Your account has been created successfully."
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: error.message || "Failed to create account. Please try again."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleSignup = () => {
-    onSignup();
+  const handleGoogleSignup = async () => {
+    setIsLoading(true);
+    
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Google Signup Failed",
+        description: error.message || "Failed to sign up with Google."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -101,15 +130,17 @@ export default function Signup({ onSignup }: SignupProps) {
 
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full h-12 bg-gradient-to-r from-[#3b096e] to-[#7312d4] text-white font-bold rounded-lg hover:opacity-90 transition-opacity mt-8"
               data-testid="button-signup"
             >
-              Sign up
+              {isLoading ? 'Creating account...' : 'Sign up'}
             </Button>
 
             <Button
               type="button"
               onClick={handleGoogleSignup}
+              disabled={isLoading}
               className="w-full h-12 bg-gradient-to-r from-[#3b096e] to-[#7312d4] text-white font-bold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-3"
               data-testid="button-google-signup"
             >
