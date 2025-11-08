@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
-export type AIModel = 'gpt-4' | 'claude-3.5-sonnet' | 'gemini-pro';
+export type AIModel = 'gpt-4' | 'perplexity-pro' | 'gemini-pro';
 
 interface ModelSelectorProps {
   value: AIModel;
@@ -10,7 +10,7 @@ interface ModelSelectorProps {
 
 const models = [
   { value: 'gpt-4' as const, label: 'GPT-4 (OpenAI)' },
-  { value: 'claude-3.5-sonnet' as const, label: 'Claude 3.5 Sonnet (Anthropic)' },
+  { value: 'perplexity-pro' as const, label: 'Sonar Pro (Perplexity)' },
   { value: 'gemini-pro' as const, label: 'Gemini Pro (Google)' },
 ];
 

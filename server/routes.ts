@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
 import { chatRequestSchema } from "@shared/schema";
 
@@ -11,8 +10,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     : null;
 
-  const anthropic = process.env.ANTHROPIC_API_KEY
-    ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const perplexity = process.env.PERPLEXITY_API_KEY
+    ? new OpenAI({ 
+        apiKey: process.env.PERPLEXITY_API_KEY,
+        baseURL: "https://api.perplexity.ai"
+      })
     : null;
 
   const genai = process.env.GEMINI_API_KEY
@@ -48,25 +50,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
           }
         }
-      } else if (model === "claude-3.5-sonnet") {
-        if (!anthropic) {
-          throw new Error("Anthropic API key is not configured");
+      } else if (model === "perplexity-pro") {
+        if (!perplexity) {
+          throw new Error("Perplexity API key is not configured");
         }
-        const stream = await anthropic.messages.stream({
-          model: "claude-3-5-sonnet-20241022",
-          max_tokens: 4096,
+        const stream = await perplexity.chat.completions.create({
+          model: "sonar-pro",
           messages: messages.map((msg) => ({
             role: msg.role,
             content: msg.content,
           })),
+          stream: true,
         });
 
         for await (const chunk of stream) {
-          if (
-            chunk.type === "content_block_delta" &&
-            chunk.delta.type === "text_delta"
-          ) {
-            const content = chunk.delta.text;
+          const content = chunk.choices[0]?.delta?.content || "";
+          if (content) {
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
           }
         }

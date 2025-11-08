@@ -10,7 +10,7 @@ export default function EmptyState() {
     {
       icon: Sparkles,
       title: 'Multiple AI Models',
-      description: 'Switch between GPT-4, Claude, and Gemini',
+      description: 'Switch between GPT-4, Perplexity, and Gemini',
     },
     {
       icon: Zap,

@@ -7,7 +7,7 @@ export const messageSchema = z.object({
 
 export const chatRequestSchema = z.object({
   messages: z.array(messageSchema),
-  model: z.enum(['gpt-4', 'claude-3.5-sonnet', 'gemini-pro']),
+  model: z.enum(['gpt-4', 'perplexity-pro', 'gemini-pro']),
 });
 
 export type Message = z.infer<typeof messageSchema>;
