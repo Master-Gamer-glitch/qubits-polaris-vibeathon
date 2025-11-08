@@ -46,20 +46,25 @@ export default function Home() {
     setActiveChat(newChat.id);
   };
 
-  const handleSendMessage = (content: string) => {
-    if (!activeChat) {
-      handleNewChat();
-      setTimeout(() => {
-        const newChatId = chats[0]?.id || Date.now().toString();
-        addMessage(newChatId, content);
-      }, 0);
-      return;
+  const handleSendMessage = async (content: string) => {
+    let chatId = activeChat;
+    
+    if (!chatId) {
+      const newChat: Chat = {
+        id: Date.now().toString(),
+        title: content.slice(0, 50),
+        timestamp: 'Just now',
+        messages: [],
+      };
+      setChats([newChat, ...chats]);
+      chatId = newChat.id;
+      setActiveChat(newChat.id);
     }
 
-    addMessage(activeChat, content);
+    await addMessage(chatId, content);
   };
 
-  const addMessage = (chatId: string, content: string) => {
+  const addMessage = async (chatId: string, content: string) => {
     const now = new Date();
     const timestamp = now.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
@@ -86,12 +91,39 @@ export default function Home() {
       return updatedChats;
     });
 
-    // Simulate AI response
-    setTimeout(() => {
+    const currentChat = chats.find(c => c.id === chatId);
+    const allMessages = [...(currentChat?.messages || []), userMessage];
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: allMessages.map(m => ({ role: m.role, content: m.content })),
+          model: selectedModel,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No reader available');
+      }
+
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+      let buffer = '';
+      const assistantId = (Date.now() + 1).toString();
+
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: assistantId,
         role: 'assistant',
-        content: generateMockResponse(content, selectedModel),
+        content: '',
         timestamp: new Date().toLocaleTimeString('en-US', { 
           hour: 'numeric', 
           minute: '2-digit',
@@ -106,79 +138,120 @@ export default function Home() {
             : chat
         )
       );
-    }, 1000);
-  };
 
-  const generateMockResponse = (userMessage: string, model: AIModel): string => {
-    // todo: remove mock functionality
-    const modelName = model === 'gpt-4' ? 'GPT-4' : model === 'claude-3.5-sonnet' ? 'Claude 3.5 Sonnet' : 'Gemini Pro';
-    
-    if (userMessage.toLowerCase().includes('python') || userMessage.toLowerCase().includes('function')) {
-      return `Here's a Python solution using **${modelName}**:
+      let isDone = false;
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-\`\`\`python
-def example_function(param):
-    """
-    Example function to demonstrate code generation.
-    """
-    result = param * 2
-    return result
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        
+        buffer = lines.pop() || '';
 
-# Usage
-output = example_function(5)
-print(f"Result: {output}")
-\`\`\`
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') {
+              isDone = true;
+              break;
+            }
 
-This function demonstrates a basic pattern. Let me know if you'd like me to expand on this or modify it!`;
-    }
-
-    if (userMessage.toLowerCase().includes('html') || userMessage.toLowerCase().includes('css')) {
-      return `Here's an HTML/CSS solution powered by **${modelName}**:
-
-\`\`\`html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Example Page</title>
-    <style>
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            if (data) {
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.content) {
+                  assistantContent += parsed.content;
+                  
+                  setChats(prevChats =>
+                    prevChats.map(chat => {
+                      if (chat.id === chatId) {
+                        const updatedMessages = chat.messages.map(msg =>
+                          msg.id === assistantId
+                            ? { ...msg, content: assistantContent }
+                            : msg
+                        );
+                        return { ...chat, messages: updatedMessages };
+                      }
+                      return chat;
+                    })
+                  );
+                }
+              } catch (e) {
+                console.error('Failed to parse SSE data:', data, e);
+              }
+            }
+          }
         }
-        .card {
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        
+        if (isDone) break;
+      }
+
+      buffer += decoder.decode();
+      if (buffer.trim()) {
+        const lines = buffer.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim();
+            if (data && data !== '[DONE]') {
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.content) {
+                  assistantContent += parsed.content;
+                  
+                  setChats(prevChats =>
+                    prevChats.map(chat => {
+                      if (chat.id === chatId) {
+                        const updatedMessages = chat.messages.map(msg =>
+                          msg.id === assistantId
+                            ? { ...msg, content: assistantContent }
+                            : msg
+                        );
+                        return { ...chat, messages: updatedMessages };
+                      }
+                      return chat;
+                    })
+                  );
+                }
+              } catch (e) {
+                console.error('Failed to parse final SSE data:', data, e);
+              }
+            }
+          }
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="card">
-            <h1>Hello World</h1>
-            <p>This is an example card component.</p>
-        </div>
-    </div>
-</body>
-</html>
-\`\`\`
-
-Would you like me to modify any styles or add more features?`;
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      
+      setChats(prevChats =>
+        prevChats.map(chat => {
+          if (chat.id === chatId) {
+            const lastMsg = chat.messages[chat.messages.length - 1];
+            if (lastMsg?.role === 'assistant' && !lastMsg.content) {
+              const updatedMessages = chat.messages.slice(0, -1);
+              updatedMessages.push({
+                ...lastMsg,
+                content: 'Sorry, I encountered an error processing your request. Please try again.',
+              });
+              return { ...chat, messages: updatedMessages };
+            }
+            const errorMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              role: 'assistant',
+              content: 'Sorry, I encountered an error processing your request. Please try again.',
+              timestamp: new Date().toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+              }),
+            };
+            return { ...chat, messages: [...chat.messages, errorMessage] };
+          }
+          return chat;
+        })
+      );
     }
-
-    return `I'd be happy to help with that! I'm currently running on **${modelName}**. 
-
-Here are a few ways I can assist:
-- Generate code in Python, HTML, CSS, or JavaScript
-- Explain technical concepts
-- Help debug and modify existing code
-- Discuss best practices and patterns
-
-Could you provide more details about what you're trying to build?`;
   };
 
   const style = {
