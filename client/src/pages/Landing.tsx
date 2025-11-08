@@ -42,13 +42,13 @@ export default function Landing() {
             >
               Home
             </a>
-            <a 
-              href="#developer" 
+            <button 
+              onClick={handleGetStarted}
               className="text-white text-sm font-medium hover-elevate px-2 py-1 rounded"
               data-testid="link-developer"
             >
               Developer
-            </a>
+            </button>
           </nav>
         </div>
       </header>
