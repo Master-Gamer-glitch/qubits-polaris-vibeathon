@@ -4,12 +4,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import NotFound from "@/pages/not-found";
 
-function Router() {
+function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -21,28 +22,30 @@ function Router() {
   }
 
   if (!user) {
+    return <Redirect to="/login" />;
+  }
+
+  return <Component />;
+}
+
+function Router() {
+  const { loading } = useAuth();
+
+  if (loading) {
     return (
-      <Switch>
-        <Route path="/login" component={Login} />
-        <Route path="/signup" component={Signup} />
-        <Route path="/">
-          <Redirect to="/login" />
-        </Route>
-        <Route>
-          <Redirect to="/login" />
-        </Route>
-      </Switch>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
     );
   }
 
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/login">
-        <Redirect to="/" />
-      </Route>
-      <Route path="/signup">
-        <Redirect to="/" />
+      <Route path="/" component={Landing} />
+      <Route path="/login" component={Login} />
+      <Route path="/signup" component={Signup} />
+      <Route path="/chat">
+        <ProtectedRoute component={Home} />
       </Route>
       <Route component={NotFound} />
     </Switch>
