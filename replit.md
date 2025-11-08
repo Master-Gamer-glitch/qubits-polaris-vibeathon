@@ -2,7 +2,7 @@
 
 ## Overview
 
-Candela is a web-based intelligent coding assistant that provides code generation, modifications, and technical discussions powered by multiple state-of-the-art AI language models. The application allows users to interact with different AI models (GPT-4, Claude 3.5 Sonnet, and Gemini Pro) through a clean, developer-focused chat interface with sophisticated code rendering capabilities.
+Candela is a web-based intelligent AI chat application that provides conversations with multiple AI models (Perplexity Pro and Gemini) through a clean, dark purple-themed chat interface with text-to-speech capabilities. The application features Firebase authentication (email/password and Google sign-in) and stores chat history in Firestore for persistent access across sessions.
 
 ## User Preferences
 
@@ -26,15 +26,20 @@ Preferred communication style: Simple, everyday language.
 
 **State Management:**
 - TanStack Query (React Query) for server state management and API data fetching
+- Firebase Authentication context for user authentication state
 - Local React state for UI interactions and chat management
-- No messages are currently persisted to a database (in-memory only)
+- Firestore for persistent chat history storage
 
 **Key UI Components:**
+- `Login` and `Signup`: Authentication pages with dark purple gradient theme (#1a1221, #7312d4)
 - `AppSidebar`: Navigation with model selector, chat history, and new chat button
 - `ChatMessage`: Renders user and assistant messages with markdown support
 - `CodeBlock`: Syntax-highlighted code blocks using react-syntax-highlighter with VS Code Dark+ theme
 - `ChatInput`: Auto-expanding textarea for message composition
 - `EmptyState`: Welcome screen highlighting key features
+
+**Features:**
+- Text-to-speech: Automatically reads aloud the first 2 sentences of AI responses using Web Speech API
 
 ### Backend Architecture
 
@@ -49,57 +54,74 @@ Preferred communication style: Simple, everyday language.
 - Zod schemas for request/response validation (`chatRequestSchema`, `messageSchema`)
 
 **AI Model Integration:**
-The application integrates with three AI providers through their official SDKs:
-- **OpenAI** (GPT-4): Uses `openai` SDK with streaming chat completions
-- **Anthropic** (Claude 3.5 Sonnet): Uses `@anthropic-ai/sdk` with message streaming
-- **Google** (Gemini Pro): Uses `@google/genai` SDK with streaming generation
+The application integrates with two AI providers through their official SDKs:
+- **Perplexity Pro**: Uses OpenAI-compatible API with streaming chat completions
+- **Google Gemini Pro**: Uses `@google/genai` SDK with streaming generation
 
 All models are accessed through a unified interface where the frontend specifies the desired model, and the backend routes requests to the appropriate provider.
 
 ### Data Storage
 
-**Current Implementation:**
-- In-memory storage via `MemStorage` class (placeholder implementation)
-- No persistent storage of chat history or user data
-- Sessions configured with connect-pg-simple but not actively used
+**Firebase Firestore:**
+- Chat history stored in Firestore `chats` collection
+- Each chat document contains: id, title, messages, userId, createdAt, updatedAt timestamps
+- Real-time sync capabilities for chat updates
+- Security rules enforce user-based access control (users can only access their own chats)
+- Composite index on userId + updatedAt for efficient chat retrieval
 
-**Database Configuration:**
-- Drizzle ORM configured with PostgreSQL dialect
-- Database schema defined in `shared/schema.ts` (currently minimal, only chat request schemas)
-- Migration system set up via drizzle-kit
-- `@neondatabase/serverless` for PostgreSQL connectivity (likely targeting Neon serverless Postgres)
+**Firestore Schema:**
+```typescript
+interface Chat {
+  id: string;
+  title: string;
+  timestamp: string;
+  messages: Message[];
+  userId: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
 
-**Future Persistence Considerations:**
-The architecture is prepared for adding persistent storage with:
-- Schema definitions ready for Drizzle ORM
-- Database URL configuration in place
-- Migration tooling configured
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+```
 
 ### Authentication & Authorization
 
-**Current State:**
-- No authentication system implemented
-- No user management or authorization checks
-- API keys for AI providers stored in environment variables
-- Sessions infrastructure configured but not enforced
+**Firebase Authentication:**
+- Email/password authentication
+- Google OAuth authentication via Firebase Auth
+- Authentication context (`AuthContext`) manages auth state across the app
+- Protected routes: unauthenticated users redirected to login page
+- Sign-out functionality available in chat interface
 
-**Security Posture:**
-- API endpoints are currently open without authentication
-- AI provider API keys must be configured via environment variables:
-  - `OPENAI_API_KEY`
-  - `ANTHROPIC_API_KEY`
+**Security Implementation:**
+- Firebase Authentication tokens used for user identification
+- Firestore security rules ensure users can only access their own data
+- Environment variables for Firebase configuration:
+  - `VITE_FIREBASE_API_KEY`
+  - `VITE_FIREBASE_AUTH_DOMAIN`
+  - `VITE_FIREBASE_PROJECT_ID`
+  - `VITE_FIREBASE_STORAGE_BUCKET`
+  - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+  - `VITE_FIREBASE_APP_ID`
+- AI provider API keys stored in server environment variables:
+  - `PERPLEXITY_API_KEY`
   - `GEMINI_API_KEY`
 
 ## External Dependencies
 
 **AI Service Providers:**
-- **OpenAI API**: GPT-4 model access for chat completions
-- **Anthropic API**: Claude 3.5 Sonnet model access
+- **Perplexity API**: Perplexity Pro model access via OpenAI-compatible endpoint
 - **Google Generative AI API**: Gemini Pro model access
 
-**Database:**
-- **PostgreSQL**: Configured via `DATABASE_URL` environment variable, likely using Neon serverless
-- Drizzle ORM for database operations and migrations
+**Firebase Services:**
+- **Firebase Authentication**: User authentication with email/password and Google OAuth
+- **Firebase Firestore**: NoSQL database for chat history persistence
+- **Firebase Hosting**: Static site hosting with SPA routing support
 
 **Third-Party Libraries:**
 - **Radix UI**: Headless UI component primitives for accessibility
