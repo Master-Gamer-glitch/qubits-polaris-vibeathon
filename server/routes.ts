@@ -19,6 +19,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/chat", async (req, res) => {
     try {
       const { messages, model } = chatRequestSchema.parse(req.body);
+      
+      console.log(`Chat request: model=${model}, messages=${messages.length}`);
 
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
@@ -26,7 +28,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (model === "gpt-4") {
         const stream = await openai.chat.completions.create({
-          model: "gpt-4",
+          model: "gpt-4o",
           messages: messages.map((msg) => ({
             role: msg.role,
             content: msg.content,
@@ -83,11 +85,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.write("data: [DONE]\n\n");
       res.end();
+      console.log(`Chat completed: model=${model}`);
     } catch (error) {
       console.error("Chat API error:", error);
-      res.status(500).json({
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+      } else {
+        res.write(`data: ${JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" })}\n\n`);
+        res.end();
+      }
     }
   });
 
