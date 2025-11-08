@@ -179,11 +179,20 @@ export default function Home() {
                     })
                   );
 
-                  if (!hasSpokenFirstLines) {
-                    const lines = assistantContent.split('\n').filter(line => line.trim());
+                  if (!hasSpokenFirstLines && assistantContent.length > 50) {
+                    const lines = assistantContent.split(/[.\n]+/).filter(line => line.trim()).map(l => l.trim());
+                    
                     if (lines.length >= 2) {
-                      const firstTwoLines = lines.slice(0, 2).join('. ');
+                      const firstTwoLines = lines.slice(0, 2).join('. ') + '.';
                       const utterance = new SpeechSynthesisUtterance(firstTwoLines);
+                      utterance.rate = 1.0;
+                      utterance.pitch = 1.0;
+                      utterance.volume = 1.0;
+                      window.speechSynthesis.speak(utterance);
+                      hasSpokenFirstLines = true;
+                    } else if (assistantContent.length > 100) {
+                      const textToSpeak = assistantContent.slice(0, 200);
+                      const utterance = new SpeechSynthesisUtterance(textToSpeak);
                       utterance.rate = 1.0;
                       utterance.pitch = 1.0;
                       utterance.volume = 1.0;
