@@ -6,10 +6,6 @@ import { chatRequestSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Only initialize clients if API keys are available
-  const openai = process.env.OPENAI_API_KEY 
-    ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-    : null;
-
   const perplexity = process.env.PERPLEXITY_API_KEY
     ? new OpenAI({ 
         apiKey: process.env.PERPLEXITY_API_KEY,
@@ -31,26 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      if (model === "gpt-4") {
-        if (!openai) {
-          throw new Error("OpenAI API key is not configured");
-        }
-        const stream = await openai.chat.completions.create({
-          model: "gpt-4o",
-          messages: messages.map((msg) => ({
-            role: msg.role,
-            content: msg.content,
-          })),
-          stream: true,
-        });
-
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content || "";
-          if (content) {
-            res.write(`data: ${JSON.stringify({ content })}\n\n`);
-          }
-        }
-      } else if (model === "perplexity-pro") {
+      if (model === "perplexity-pro") {
         if (!perplexity) {
           throw new Error("Perplexity API key is not configured");
         }

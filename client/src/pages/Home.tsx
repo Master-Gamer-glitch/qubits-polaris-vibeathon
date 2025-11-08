@@ -22,7 +22,7 @@ interface Chat {
 }
 
 export default function Home() {
-  const [selectedModel, setSelectedModel] = useState<AIModel>('gpt-4');
+  const [selectedModel, setSelectedModel] = useState<AIModel>('perplexity-pro');
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -119,6 +119,7 @@ export default function Home() {
       let assistantContent = '';
       let buffer = '';
       const assistantId = (Date.now() + 1).toString();
+      let hasSpokenFirstLines = false;
 
       const assistantMessage: Message = {
         id: assistantId,
@@ -177,6 +178,19 @@ export default function Home() {
                       return chat;
                     })
                   );
+
+                  if (!hasSpokenFirstLines) {
+                    const lines = assistantContent.split('\n').filter(line => line.trim());
+                    if (lines.length >= 2) {
+                      const firstTwoLines = lines.slice(0, 2).join('. ');
+                      const utterance = new SpeechSynthesisUtterance(firstTwoLines);
+                      utterance.rate = 1.0;
+                      utterance.pitch = 1.0;
+                      utterance.volume = 1.0;
+                      window.speechSynthesis.speak(utterance);
+                      hasSpokenFirstLines = true;
+                    }
+                  }
                 }
               } catch (e) {
                 console.error('Failed to parse SSE data:', data, e);
