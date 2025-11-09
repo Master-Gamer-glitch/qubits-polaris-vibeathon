@@ -10,11 +10,7 @@ export default function About() {
   const { user } = useAuth();
 
   const handleConnect = () => {
-    if (user) {
-      setLocation('/chat');
-    } else {
-      setLocation('/login');
-    }
+    setLocation('/connect');
   };
 
   return (

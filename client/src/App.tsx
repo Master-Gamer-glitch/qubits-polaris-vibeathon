@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Landing from "@/pages/Landing";
 import About from "@/pages/About";
+import Connect from "@/pages/Connect";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
@@ -44,6 +45,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/about" component={About} />
+      <Route path="/connect" component={Connect} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/chat">
