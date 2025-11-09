@@ -83,10 +83,13 @@ export default function Home() {
       timestamp,
     };
 
+    let allMessages: Message[] = [];
+
     setChats(prevChats => {
       const updatedChats = prevChats.map(chat => {
         if (chat.id === chatId) {
           const newMessages = [...chat.messages, userMessage];
+          allMessages = newMessages;
           const newTitle = chat.messages.length === 0 ? content.slice(0, 50) : chat.title;
           return { ...chat, messages: newMessages, title: newTitle };
         }
@@ -94,9 +97,6 @@ export default function Home() {
       });
       return updatedChats;
     });
-
-    const currentChat = chats.find(c => c.id === chatId);
-    const allMessages = [...(currentChat?.messages || []), userMessage];
 
     try {
       const response = await fetch('/api/chat', {
