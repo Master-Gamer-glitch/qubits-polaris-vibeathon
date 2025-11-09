@@ -26,6 +26,7 @@ export default function Signup() {
         title: "Account Created",
         description: "Your account has been created successfully."
       });
+      setLocation('/chat');
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -42,6 +43,7 @@ export default function Signup() {
     
     try {
       await signInWithGoogle();
+      setLocation('/chat');
     } catch (error: any) {
       toast({
         variant: "destructive",

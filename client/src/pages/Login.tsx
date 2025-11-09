@@ -22,6 +22,7 @@ export default function Login() {
 
     try {
       await signIn(email, password);
+      setLocation('/chat');
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -38,6 +39,7 @@ export default function Login() {
     
     try {
       await signInWithGoogle();
+      setLocation('/chat');
     } catch (error: any) {
       toast({
         variant: "destructive",
