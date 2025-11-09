@@ -58,7 +58,7 @@ export default function Login() {
           <img 
             src={logoUrl} 
             alt="XConnect" 
-            className="h-11 w-[119px] rounded-full"
+            className="h-12 w-12"
             data-testid="img-logo"
           />
           <nav className="flex items-center gap-9">
