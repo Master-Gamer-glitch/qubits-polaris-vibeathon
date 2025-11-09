@@ -8,8 +8,9 @@ import { AIModel } from '@/components/ModelSelector';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { API_BASE_URL } from '@/config/api';
+import { Link } from 'wouter';
 
 interface Message {
   id: string;
@@ -30,7 +31,6 @@ export default function Home() {
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { signOut } = useAuth();
 
   const currentChat = chats.find(c => c.id === activeChat);
 
@@ -342,14 +342,15 @@ export default function Home() {
                 {currentChat?.title || 'Candela'}
               </h1>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={signOut}
-              data-testid="button-signout"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <Link href="/">
+              <Button
+                variant="ghost"
+                size="icon"
+                data-testid="button-back"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
           </header>
           <div className="flex-1 overflow-hidden flex flex-col">
             {!currentChat || currentChat.messages.length === 0 ? (
