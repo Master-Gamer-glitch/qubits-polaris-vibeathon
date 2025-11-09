@@ -1,6 +1,7 @@
 import { useLocation } from 'wouter';
 import { Home, Users, Compass, User, Settings as SettingsIcon, LogOut, Paintbrush, Lock, Bell } from 'lucide-react';
 import logoUrl from '@assets/xconnect-logo.png';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SettingItem {
   icon: any;
@@ -58,6 +59,7 @@ const settingSections: SettingSection[] = [
 
 export default function Settings() {
   const [, setLocation] = useLocation();
+  const { signOut } = useAuth();
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -99,9 +101,9 @@ export default function Settings() {
 
         <div className="p-3">
           <button
-            onClick={() => setLocation('/')}
+            onClick={signOut}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-[#2d1f3d] transition-colors"
-            data-testid="nav-logout"
+            data-testid="button-logout"
           >
             <LogOut className="h-5 w-5" />
             <span>Logout</span>

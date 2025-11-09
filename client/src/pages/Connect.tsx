@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Home, Users, Compass, User, Settings, LogOut, Plus, MessageCircle } from 'lucide-react';
+import { Home, Users, Compass, User, Settings, Plus, MessageCircle } from 'lucide-react';
 import logoUrl from '@assets/xconnect-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -122,17 +122,6 @@ export default function Connect() {
             </button>
           ))}
         </nav>
-
-        <div className="p-3">
-          <button
-            onClick={() => setLocation('/')}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-[#2d1f3d] transition-colors"
-            data-testid="nav-logout"
-          >
-            <LogOut className="h-5 w-5" />
-            <span>Logout</span>
-          </button>
-        </div>
       </aside>
 
       {/* Main Content */}

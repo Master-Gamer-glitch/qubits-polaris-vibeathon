@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { Home, Users, Compass, User, Settings, LogOut, Code, Smartphone, Cloud, Shield, Brain, GitBranch, Bitcoin, Database, Server } from 'lucide-react';
+import { Home, Users, Compass, User, Settings, Code, Smartphone, Cloud, Shield, Brain, GitBranch, Bitcoin, Database, Server } from 'lucide-react';
 import logoUrl from '@assets/xconnect-logo.png';
 
 interface Topic {
@@ -106,17 +106,6 @@ export default function Explore() {
             </button>
           ))}
         </nav>
-
-        <div className="p-3">
-          <button
-            onClick={() => setLocation('/')}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-[#2d1f3d] transition-colors"
-            data-testid="nav-logout"
-          >
-            <LogOut className="h-5 w-5" />
-            <span>Logout</span>
-          </button>
-        </div>
       </aside>
 
       <div className="flex-1 flex flex-col">
