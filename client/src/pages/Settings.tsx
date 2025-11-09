@@ -1,15 +1,69 @@
 import { useLocation } from 'wouter';
-import { Home, Users, Compass, User, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { Home, Users, Compass, User, Settings as SettingsIcon, LogOut, Paintbrush, Lock, Bell } from 'lucide-react';
 import logoUrl from '@assets/xconnect-logo.png';
+
+interface SettingItem {
+  icon: any;
+  title: string;
+  description: string;
+}
+
+interface SettingSection {
+  title: string;
+  items: SettingItem[];
+}
+
+const settingSections: SettingSection[] = [
+  {
+    title: "App Customization",
+    items: [
+      {
+        icon: Paintbrush,
+        title: "Appearance",
+        description: "Personalize the app's appearance and behavior to suit your preferences."
+      }
+    ]
+  },
+  {
+    title: "Privacy",
+    items: [
+      {
+        icon: Lock,
+        title: "Privacy Controls",
+        description: "Control who can see your profile, posts, and other information."
+      }
+    ]
+  },
+  {
+    title: "Account",
+    items: [
+      {
+        icon: User,
+        title: "Account Preferences",
+        description: "Manage your account details, including your name, email, and password."
+      }
+    ]
+  },
+  {
+    title: "Notifications",
+    items: [
+      {
+        icon: Bell,
+        title: "Notification Settings",
+        description: "Customize how you receive notifications for new messages, updates, and more."
+      }
+    ]
+  }
+];
 
 export default function Settings() {
   const [, setLocation] = useLocation();
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
+    { icon: User, label: 'Profile', path: '/profile' },
     { icon: Users, label: 'Connect', path: '/connect' },
     { icon: Compass, label: 'Explore', path: '/explore' },
-    { icon: User, label: 'Profile', path: '/profile' },
     { icon: SettingsIcon, label: 'Settings', path: '/settings', active: true },
   ];
 
@@ -80,13 +134,41 @@ export default function Settings() {
           </button>
         </header>
 
-        <main className="flex-1 p-10">
-          <h1 className="text-4xl font-bold text-white mb-4" data-testid="text-title">
+        <main className="flex-1 p-10 overflow-y-auto">
+          <h1 className="text-4xl font-bold text-white mb-10" data-testid="text-title">
             Settings
           </h1>
-          <p className="text-white text-lg">
-            Coming soon...
-          </p>
+
+          <div className="max-w-3xl space-y-8">
+            {settingSections.map((section, sectionIndex) => (
+              <div key={section.title}>
+                <h2 className="text-xl font-semibold text-white mb-4" data-testid={`text-section-${sectionIndex}`}>
+                  {section.title}
+                </h2>
+                <div className="space-y-3">
+                  {section.items.map((item, itemIndex) => (
+                    <div 
+                      key={item.title}
+                      className="flex items-start gap-4 p-4 bg-[#2d1f3d] rounded-lg cursor-pointer hover:bg-[#3d2554] transition-colors"
+                      data-testid={`setting-item-${sectionIndex}-${itemIndex}`}
+                    >
+                      <div className="w-12 h-12 bg-[#3d2554] rounded flex items-center justify-center flex-shrink-0">
+                        <item.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-white font-medium mb-1" data-testid={`text-setting-title-${sectionIndex}-${itemIndex}`}>
+                          {item.title}
+                        </h3>
+                        <p className="text-gray-400 text-sm" data-testid={`text-setting-description-${sectionIndex}-${itemIndex}`}>
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </main>
       </div>
     </div>
