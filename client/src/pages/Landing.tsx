@@ -43,11 +43,11 @@ export default function Landing() {
               Home
             </button>
             <button 
-              onClick={handleConnect}
+              onClick={() => setLocation('/chat')}
               className="text-white text-sm font-medium hover-elevate px-2 py-1 rounded"
-              data-testid="link-developer"
+              data-testid="link-candela"
             >
-              Developer
+              Candela
             </button>
           </nav>
         </div>

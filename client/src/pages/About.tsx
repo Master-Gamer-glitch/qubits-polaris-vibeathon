@@ -39,11 +39,11 @@ export default function About() {
               Home
             </button>
             <button 
-              onClick={() => setLocation('/connect')}
+              onClick={() => setLocation('/chat')}
               className="text-white text-sm font-medium hover-elevate px-2 py-1 rounded"
-              data-testid="link-developer"
+              data-testid="link-candela"
             >
-              Developer
+              Candela
             </button>
           </nav>
         </div>

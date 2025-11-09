@@ -128,9 +128,9 @@ export default function Settings() {
           <button
             onClick={() => setLocation('/chat')}
             className="text-white text-sm font-medium hover:text-[#9d7dc5] transition-colors"
-            data-testid="nav-developer"
+            data-testid="nav-candela"
           >
-            Developer
+            Candela
           </button>
         </header>
 
