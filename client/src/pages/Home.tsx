@@ -167,6 +167,25 @@ export default function Home() {
             if (data) {
               try {
                 const parsed = JSON.parse(data);
+                
+                if (parsed.error) {
+                  // Handle error from API
+                  setChats(prevChats =>
+                    prevChats.map(chat => {
+                      if (chat.id === chatId) {
+                        const updatedMessages = chat.messages.map(msg =>
+                          msg.id === assistantId
+                            ? { ...msg, content: `Error: ${parsed.error}` }
+                            : msg
+                        );
+                        return { ...chat, messages: updatedMessages };
+                      }
+                      return chat;
+                    })
+                  );
+                  break;
+                }
+                
                 if (parsed.content) {
                   assistantContent += parsed.content;
                   
@@ -225,6 +244,24 @@ export default function Home() {
             if (data && data !== '[DONE]') {
               try {
                 const parsed = JSON.parse(data);
+                
+                if (parsed.error) {
+                  // Handle error from API
+                  setChats(prevChats =>
+                    prevChats.map(chat => {
+                      if (chat.id === chatId) {
+                        const updatedMessages = chat.messages.map(msg =>
+                          msg.id === assistantId
+                            ? { ...msg, content: `Error: ${parsed.error}` }
+                            : msg
+                        );
+                        return { ...chat, messages: updatedMessages };
+                      }
+                      return chat;
+                    })
+                  );
+                }
+                
                 if (parsed.content) {
                   assistantContent += parsed.content;
                   
