@@ -1,6 +1,70 @@
 import { useLocation } from 'wouter';
-import { Home, Users, Compass, User, Settings, LogOut } from 'lucide-react';
+import { Home, Users, Compass, User, Settings, LogOut, Code, Smartphone, Cloud, Shield, Brain, GitBranch, Bitcoin, Database, Server } from 'lucide-react';
 import logoUrl from '@assets/xconnect-logo.png';
+
+interface Topic {
+  id: number;
+  icon: any;
+  title: string;
+  description: string;
+}
+
+const topics: Topic[] = [
+  {
+    id: 1,
+    icon: Code,
+    title: "Software Development",
+    description: "Building and maintaining software applications"
+  },
+  {
+    id: 2,
+    icon: Smartphone,
+    title: "Mobile Development",
+    description: "Developing applications for mobile devices"
+  },
+  {
+    id: 3,
+    icon: Cloud,
+    title: "Cloud Computing",
+    description: "Managing and deploying applications on cloud platforms"
+  },
+  {
+    id: 4,
+    icon: Shield,
+    title: "Cybersecurity",
+    description: "Protecting systems and data from cyber threats"
+  },
+  {
+    id: 5,
+    icon: Brain,
+    title: "Artificial Intelligence",
+    description: "Developing intelligent systems and automation"
+  },
+  {
+    id: 6,
+    icon: GitBranch,
+    title: "DevOps Practices",
+    description: "Automating and streamlining software development processes"
+  },
+  {
+    id: 7,
+    icon: Bitcoin,
+    title: "Blockchain Technology",
+    description: "Implementing blockchain solutions"
+  },
+  {
+    id: 8,
+    icon: Database,
+    title: "Data Science",
+    description: "Analyzing data to extract insights and make predictions"
+  },
+  {
+    id: 9,
+    icon: Server,
+    title: "Server Management",
+    description: "Managing and maintaining server infrastructure"
+  },
+];
 
 export default function Explore() {
   const [, setLocation] = useLocation();
@@ -81,12 +145,31 @@ export default function Explore() {
         </header>
 
         <main className="flex-1 p-10">
-          <h1 className="text-4xl font-bold text-white mb-4" data-testid="text-title">
+          <h1 className="text-4xl font-bold text-white mb-10" data-testid="text-title">
             Explore
           </h1>
-          <p className="text-white text-lg">
-            Coming soon...
-          </p>
+
+          <div className="grid grid-cols-3 gap-6 max-w-6xl">
+            {topics.map((topic) => (
+              <div
+                key={topic.id}
+                className="bg-gradient-to-br from-[#5a4068] to-[#3d2554] rounded-lg p-6 space-y-3 cursor-pointer hover:opacity-90 transition-opacity"
+                data-testid={`card-topic-${topic.id}`}
+              >
+                <div className="w-10 h-10 text-white">
+                  <topic.icon className="w-full h-full" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2" data-testid={`text-title-${topic.id}`}>
+                    {topic.title}
+                  </h3>
+                  <p className="text-sm text-gray-300" data-testid={`text-description-${topic.id}`}>
+                    {topic.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </main>
       </div>
     </div>
