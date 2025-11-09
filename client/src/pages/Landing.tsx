@@ -10,11 +10,7 @@ export default function Landing() {
   const { user } = useAuth();
 
   const handleGetStarted = () => {
-    if (user) {
-      setLocation('/chat');
-    } else {
-      setLocation('/login');
-    }
+    setLocation('/about');
   };
 
   return (
