@@ -1,64 +1,88 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Home, Users, Compass, User, Settings, LogOut } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Home, Users, Compass, User, Settings, LogOut, Plus, MessageCircle } from 'lucide-react';
 import logoUrl from '@assets/xconnect-logo.png';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/AuthContext';
 
-interface Profile {
-  id: number;
-  name: string;
-  experience: string;
-  country: string;
-  organizations: string;
-  assisted: string;
-  image: string;
+interface SkillSwap {
+  id: string;
+  userId: string;
+  userName: string;
+  offer: string;
+  need: string;
+  tags: string[];
+  commentsCount: number;
+  createdAt: string;
 }
 
-const mockProfiles: Profile[] = [
+const mockSwaps: SkillSwap[] = [
   {
-    id: 1,
-    name: "Olivia Harper",
-    experience: "7 years",
-    country: "Canada",
-    organizations: "Creative Minds",
-    assisted: "220 people",
-    image: "OH"
+    id: '1',
+    userId: 'user1',
+    userName: 'Sarah Chen',
+    offer: 'Logo & Branding',
+    need: 'Help with Flask API',
+    tags: ['design', 'python'],
+    commentsCount: 2,
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
   },
   {
-    id: 2,
-    name: "Olivia Harper",
-    experience: "7 years",
-    country: "Canada",
-    organizations: "Creative Minds",
-    assisted: "220 people",
-    image: "OH"
+    id: '2',
+    userId: 'user2',
+    userName: 'Alex Kumar',
+    offer: 'React Development',
+    need: 'UI/UX Design Review',
+    tags: ['react', 'javascript', 'frontend'],
+    commentsCount: 5,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
   },
   {
-    id: 3,
-    name: "Olivia Harper",
-    experience: "7 years",
-    country: "Canada",
-    organizations: "Creative Minds",
-    assisted: "220 people",
-    image: "OH"
+    id: '3',
+    userId: 'user3',
+    userName: 'Maria Lopez',
+    offer: 'Database Design',
+    need: 'Mobile App Testing',
+    tags: ['sql', 'database', 'testing'],
+    commentsCount: 0,
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
   },
   {
-    id: 4,
-    name: "Olivia Harper",
-    experience: "7 years",
-    country: "Canada",
-    organizations: "Creative Minds",
-    assisted: "220 people",
-    image: "OH"
+    id: '4',
+    userId: 'user4',
+    userName: 'James Wilson',
+    offer: 'SEO Optimization',
+    need: 'Backend API Integration',
+    tags: ['seo', 'marketing', 'api'],
+    commentsCount: 3,
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 
+function getTimeAgo(dateString: string): string {
+  const now = new Date();
+  const past = new Date(dateString);
+  const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return 'just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  return `${Math.floor(diffInSeconds / 86400)}d ago`;
+}
+
 export default function Connect() {
   const [, setLocation] = useLocation();
-  const [selectedInterest, setSelectedInterest] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [selectedAvailability, setSelectedAvailability] = useState("");
+  const [swaps, setSwaps] = useState<SkillSwap[]>(mockSwaps);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newOffer, setNewOffer] = useState('');
+  const [newNeed, setNewNeed] = useState('');
+  const [newTags, setNewTags] = useState('');
+  const { user } = useAuth();
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -140,95 +164,135 @@ export default function Connect() {
 
         {/* Main Content Area */}
         <main className="flex-1 p-10">
-          <h1 className="text-4xl font-bold text-white mb-8" data-testid="text-title">
-            Connect
-          </h1>
-
-          {/* Filters */}
-          <div className="flex gap-4 mb-10">
-            <Select value={selectedInterest} onValueChange={setSelectedInterest}>
-              <SelectTrigger 
-                className="w-[180px] bg-[#2d1f3d] border-[#3d2554] text-white"
-                data-testid="select-interests"
-              >
-                <SelectValue placeholder="Interests" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#2d1f3d] border-[#3d2554]">
-                <SelectItem value="design" className="text-white">Design</SelectItem>
-                <SelectItem value="development" className="text-white">Development</SelectItem>
-                <SelectItem value="business" className="text-white">Business</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-              <SelectTrigger 
-                className="w-[180px] bg-[#2d1f3d] border-[#3d2554] text-white"
-                data-testid="select-location"
-              >
-                <SelectValue placeholder="Location" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#2d1f3d] border-[#3d2554]">
-                <SelectItem value="canada" className="text-white">Canada</SelectItem>
-                <SelectItem value="usa" className="text-white">USA</SelectItem>
-                <SelectItem value="uk" className="text-white">UK</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedAvailability} onValueChange={setSelectedAvailability}>
-              <SelectTrigger 
-                className="w-[180px] bg-[#2d1f3d] border-[#3d2554] text-white"
-                data-testid="select-availability"
-              >
-                <SelectValue placeholder="Availability" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#2d1f3d] border-[#3d2554]">
-                <SelectItem value="available" className="text-white">Available</SelectItem>
-                <SelectItem value="busy" className="text-white">Busy</SelectItem>
-                <SelectItem value="offline" className="text-white">Offline</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-4xl font-bold text-white" data-testid="text-title">
+              Skill Swaps
+            </h1>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  className="bg-[#7312d4] hover:bg-[#5d0fb0] text-white"
+                  data-testid="button-new-swap"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Swap
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#2d1f3d] border-[#3d2554] text-white">
+                <DialogHeader>
+                  <DialogTitle className="text-white">Create New Skill Swap</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="offer" className="text-white">What can you offer?</Label>
+                    <Input
+                      id="offer"
+                      placeholder="e.g., Logo & Branding"
+                      value={newOffer}
+                      onChange={(e) => setNewOffer(e.target.value)}
+                      className="bg-[#1a1221] border-[#3d2554] text-white"
+                      data-testid="input-offer"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="need" className="text-white">What do you need?</Label>
+                    <Input
+                      id="need"
+                      placeholder="e.g., Help with Flask API"
+                      value={newNeed}
+                      onChange={(e) => setNewNeed(e.target.value)}
+                      className="bg-[#1a1221] border-[#3d2554] text-white"
+                      data-testid="input-need"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tags" className="text-white">Tags (comma-separated)</Label>
+                    <Input
+                      id="tags"
+                      placeholder="e.g., design, python, api"
+                      value={newTags}
+                      onChange={(e) => setNewTags(e.target.value)}
+                      className="bg-[#1a1221] border-[#3d2554] text-white"
+                      data-testid="input-tags"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => {
+                      if (newOffer && newNeed && user) {
+                        const newSwap: SkillSwap = {
+                          id: Date.now().toString(),
+                          userId: user.uid,
+                          userName: user.email || 'Anonymous',
+                          offer: newOffer,
+                          need: newNeed,
+                          tags: newTags.split(',').map(t => t.trim()).filter(Boolean),
+                          commentsCount: 0,
+                          createdAt: new Date().toISOString(),
+                        };
+                        setSwaps([newSwap, ...swaps]);
+                        setNewOffer('');
+                        setNewNeed('');
+                        setNewTags('');
+                        setIsDialogOpen(false);
+                      }
+                    }}
+                    className="w-full bg-[#7312d4] hover:bg-[#5d0fb0] text-white"
+                    data-testid="button-create-swap"
+                  >
+                    Create Swap
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
-          {/* Profile Grid */}
-          <div className="grid grid-cols-2 gap-6 max-w-5xl">
-            {mockProfiles.map((profile) => (
+          {/* Skill Swaps Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl">
+            {swaps.map((swap) => (
               <div
-                key={profile.id}
-                className="bg-gradient-to-br from-[#5a4068] to-[#3d2554] rounded-lg p-6 flex gap-6"
-                data-testid={`card-profile-${profile.id}`}
+                key={swap.id}
+                className="bg-[#2d1f3d] rounded-lg p-6 border border-[#3d2554] hover-elevate"
+                data-testid={`card-swap-${swap.id}`}
               >
-                {/* Profile Image */}
-                <div className="w-28 h-28 rounded-lg bg-gradient-to-br from-[#e8c4a0] to-[#d4b294] flex items-center justify-center flex-shrink-0">
-                  <div className="w-full h-full rounded-lg bg-[#e8c4a0] flex items-center justify-center">
-                    <svg viewBox="0 0 100 100" className="w-full h-full">
-                      <circle cx="50" cy="35" r="15" fill="#4a3830" />
-                      <ellipse cx="50" cy="70" rx="25" ry="20" fill="#f5e6d3" />
-                      <path d="M 30 30 Q 35 25 40 30" stroke="#4a3830" strokeWidth="2" fill="none" />
-                      <path d="M 60 30 Q 65 25 70 30" stroke="#4a3830" strokeWidth="2" fill="none" />
-                      <ellipse cx="38" cy="35" rx="2" ry="3" fill="#2d2420" />
-                      <ellipse cx="62" cy="35" rx="2" ry="3" fill="#2d2420" />
-                      <path d="M 45 42 Q 50 45 55 42" stroke="#4a3830" strokeWidth="1.5" fill="none" />
-                    </svg>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-white font-semibold mb-1" data-testid={`text-offer-${swap.id}`}>
+                      Offer: {swap.offer}
+                    </h3>
+                    <p className="text-gray-400 text-sm" data-testid={`text-need-${swap.id}`}>
+                      Need: {swap.need}
+                    </p>
                   </div>
-                </div>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {swap.tags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="bg-[#3d2554] text-[#9d7dc5] hover:bg-[#4d3564] border-0"
+                        data-testid={`badge-tag-${tag}`}
+                      >
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
 
-                {/* Profile Info */}
-                <div className="flex-1 text-white space-y-1">
-                  <h3 className="text-lg font-semibold mb-2" data-testid={`text-name-${profile.id}`}>
-                    {profile.name}
-                  </h3>
-                  <p className="text-sm text-gray-300" data-testid={`text-experience-${profile.id}`}>
-                    Experience: {profile.experience}
-                  </p>
-                  <p className="text-sm text-gray-300" data-testid={`text-country-${profile.id}`}>
-                    Country: {profile.country}
-                  </p>
-                  <p className="text-sm text-gray-300" data-testid={`text-organizations-${profile.id}`}>
-                    Organizations: {profile.organizations}
-                  </p>
-                  <p className="text-sm text-gray-300" data-testid={`text-assisted-${profile.id}`}>
-                    Assisted: {profile.assisted}
-                  </p>
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-3 text-gray-400 text-sm">
+                      <span className="flex items-center gap-1" data-testid={`text-comments-${swap.id}`}>
+                        <MessageCircle className="h-4 w-4" />
+                        {swap.commentsCount} {swap.commentsCount === 1 ? 'comment' : 'comments'}
+                      </span>
+                      <span data-testid={`text-time-${swap.id}`}>• {getTimeAgo(swap.createdAt)}</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="bg-[#7312d4] hover:bg-[#5d0fb0] text-white"
+                      data-testid={`button-view-swap-${swap.id}`}
+                    >
+                      View Swap
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}

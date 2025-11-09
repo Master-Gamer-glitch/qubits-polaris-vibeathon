@@ -2,7 +2,15 @@
 
 ## Overview
 
-Candela is a web-based intelligent AI chat application that provides conversations with multiple AI models (Perplexity Pro and Gemini) through a clean, dark purple-themed chat interface with text-to-speech capabilities. The application features Firebase authentication (email/password and Google sign-in) and stores chat history in Firestore for persistent access across sessions.
+Candela is a web-based intelligent AI chat application that provides conversations with multiple AI models (Perplexity Pro and Gemini) through a clean, dark purple-themed chat interface with text-to-speech capabilities. The application features Firebase authentication (email/password and Google sign-in), stores chat history in Firestore for persistent access across sessions, and includes a skill swap platform for peer-to-peer knowledge exchange.
+
+## Recent Changes (November 9, 2025)
+
+- **Dual Deployment Architecture**: Updated to support Firebase hosting for frontend (qubits-polaris.web.app) with Replit backend (candela-code-mind-MaSTeRgAmEr393.replit.app)
+- **CORS Configuration**: Added proper cross-origin headers to enable Firebase frontend to access Replit backend
+- **API Configuration**: Environment-aware API routing that automatically detects Firebase hosting vs Replit preview
+- **Connect Page Redesign**: Transformed from profile directory to skill swap platform where users exchange expertise
+- **Back Navigation**: Replaced logout button on chat page with back arrow to landing page
 
 ## User Preferences
 
