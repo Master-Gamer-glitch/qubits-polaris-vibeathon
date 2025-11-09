@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import SpotifyPlayer from "@/components/SpotifyPlayer";
 import Landing from "@/pages/Landing";
 import About from "@/pages/About";
 import Connect from "@/pages/Connect";
@@ -69,6 +70,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <SpotifyPlayer />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
