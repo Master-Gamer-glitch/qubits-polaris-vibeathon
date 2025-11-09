@@ -21,6 +21,7 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     'https://qubits-polaris.web.app',
     'https://qubits-polaris.firebaseapp.com',
+    'https://candela-code-mind-MaSTeRgAmEr393.replit.app',
     'http://localhost:5000',
     'http://localhost:5173'
   ];

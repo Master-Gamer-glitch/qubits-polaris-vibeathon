@@ -10,7 +10,7 @@ export function getApiUrl(): string {
   // If on Firebase, use the Replit backend URL
   if (isFirebaseHosting) {
     // Use the Replit deployment URL
-    return 'https://workspace-masterrgamer393.replit.app';
+    return 'https://candela-code-mind-MaSTeRgAmEr393.replit.app';
   }
 
   // Otherwise, use relative URLs (for local development/Replit preview)
